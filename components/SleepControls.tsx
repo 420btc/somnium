@@ -5,9 +5,13 @@ import { saveSleepSession } from '../services/storage';
 
 interface SleepControlsProps {
   onSessionUpdate: () => void;
+  onSleepStateChange?: (isSleeping: boolean) => void;
 }
 
-export const SleepControls: React.FC<SleepControlsProps> = ({ onSessionUpdate }) => {
+export const SleepControls: React.FC<SleepControlsProps> = ({
+  onSessionUpdate,
+  onSleepStateChange
+}) => {
   const [isSleeping, setIsSleeping] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<Date | null>(null);
@@ -23,6 +27,10 @@ export const SleepControls: React.FC<SleepControlsProps> = ({ onSessionUpdate })
       setStartTime(new Date(data.startTime));
     }
   }, []);
+
+  useEffect(() => {
+    onSleepStateChange?.(isSleeping);
+  }, [isSleeping, onSleepStateChange]);
 
   useEffect(() => {
     // Fix: Use ReturnType<typeof setInterval> to avoid NodeJS namespace dependency in browser environment

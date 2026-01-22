@@ -33,7 +33,7 @@ export const GiantClock: React.FC = () => {
         <div className="absolute w-[36vw] h-[36vw] rounded-full bg-white/6 blur-[80px] animate-glow"></div>
         <div className="absolute w-[26vw] h-[26vw] rounded-full bg-white/4 blur-[60px] animate-glow"></div>
 
-        <div className="relative px-2 -translate-x-[calc(0.08em+2px)] text-[clamp(110px,24vw,180px)] sm:text-[18vw] font-display font-bold leading-none tracking-tight select-none text-center whitespace-nowrap">
+        <div className="relative px-2 translate-x-[calc(0.03em+1px)] text-[clamp(110px,24vw,180px)] sm:text-[18vw] font-display font-bold leading-none tracking-tight select-none text-center whitespace-nowrap">
           <div className="relative flex items-baseline justify-center text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-600 drop-shadow-[0_0_18px_rgba(255,255,255,0.22)]">
             {timeChars.map((ch, idx) => {
               const isEdge = idx === 0 || idx === timeChars.length - 1;

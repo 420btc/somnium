@@ -22,6 +22,8 @@ const App: React.FC = () => {
     const parsed = stored ? Number(stored) : 8;
     return Number.isNaN(parsed) ? 8 : parsed;
   });
+  const [isSleeping, setIsSleeping] = useState(false);
+  const [showSleepNav, setShowSleepNav] = useState(false);
   const titleGradient = theme === 'light' ? 'from-black via-zinc-700 to-zinc-500' : 'from-white via-zinc-200 to-zinc-600';
   const cardSurface = theme === 'light' ? 'bg-white/80 border-zinc-200 text-black' : 'bg-black/70 border-white/10 text-white';
 
@@ -46,19 +48,10 @@ const App: React.FC = () => {
       {screen === AppScreen.CLOCK && (
         <div className="fixed inset-0 w-screen h-screen pointer-events-none z-0">
           <div className="absolute inset-0 opacity-90">
-            <EnergyBeam className="w-full h-full" />
+            <EnergyBeam className="w-full h-full hue-rotate-[205deg] saturate-[0.35] brightness-[1.15]" />
           </div>
-          <div
-            className="absolute inset-0"
-            style={{
-              backdropFilter: 'blur(2px)',
-              WebkitBackdropFilter: 'blur(2px)',
-              maskImage:
-                'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 45%)',
-              WebkitMaskImage:
-                'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 45%)'
-            }}
-          ></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.18),rgba(110,168,255,0.12)_45%,rgba(0,0,0,0)_70%)] opacity-60 mix-blend-screen"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent"></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.62)_60%,rgba(0,0,0,0.86)_100%)]"></div>
         </div>
       )}
@@ -75,12 +68,16 @@ const App: React.FC = () => {
           {/* Content Area */}
           <main className="flex-1 flex flex-col">
           {screen === AppScreen.CLOCK && (
-            <div className="flex-1 flex flex-col justify-center animate-in fade-in duration-500">
+            <div
+              className={`flex-1 flex flex-col justify-center animate-in fade-in duration-500 transition-all ease-out ${
+                isSleeping ? 'translate-y-2 opacity-90' : 'translate-y-0 opacity-100'
+              }`}
+            >
               <GiantClock />
-              <SleepControls onSessionUpdate={refreshData} />
+              <SleepControls onSessionUpdate={refreshData} onSleepStateChange={setIsSleeping} />
               
               {/* Mini Stats Preview */}
-              <div className="px-6 mt-8">
+              <div className={`px-6 mt-8 transition-opacity duration-500 ${isSleeping ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                  <div className="flex justify-between text-xs uppercase tracking-widest text-white/60 font-light mb-2 drop-shadow-[0_1px_10px_rgba(0,0,0,0.7)]">
                     <span>Hoy</span>
                     <span>{history.length > 0 ? (history[0].durationMinutes / 60).toFixed(1) + 'h' : '--'}</span>
@@ -163,7 +160,25 @@ const App: React.FC = () => {
           )}
           </main>
 
-          <Navbar currentScreen={screen} onNavigate={setScreen} />
+          <div
+            className={`fixed inset-x-0 bottom-0 z-50 transition-all duration-500 ease-out ${
+              isSleeping && !showSleepNav
+                ? 'translate-y-full opacity-0 pointer-events-none'
+                : 'translate-y-0 opacity-100'
+            }`}
+          >
+            <Navbar currentScreen={screen} onNavigate={setScreen} />
+          </div>
+          {isSleeping && (
+            <button
+              type="button"
+              aria-label="Mostrar navegación"
+              onClick={() => setShowSleepNav(true)}
+              onMouseEnter={() => setShowSleepNav(true)}
+              onMouseLeave={() => setShowSleepNav(false)}
+              className="fixed bottom-0 left-0 right-0 z-40 h-6"
+            />
+          )}
       </div>
     </div>
   );

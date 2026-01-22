@@ -54,6 +54,16 @@ export const EnergyBeam: React.FC<EnergyBeamProps> = ({
 
     return () => {
       window.clearInterval(interval);
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '';
+      }
+      window.SomniumUnicornInitialized = false;
+      const script = document.querySelector<HTMLScriptElement>(
+        'script[data-somnium-unicornstudio="true"]'
+      );
+      if (script?.parentNode) {
+        script.parentNode.removeChild(script);
+      }
     };
   }, []);
 
