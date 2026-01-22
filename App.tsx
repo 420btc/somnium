@@ -5,6 +5,7 @@ import { ChartsSection } from './components/ChartsSection';
 import { HistoryList } from './components/HistoryList';
 import { AnalysisView } from './components/AnalysisView';
 import { Navbar } from './components/Navbar';
+import { DreamDiary } from './components/DreamDiary';
 import { AppScreen, SleepSession } from './types';
 import { getSleepHistory } from './services/storage';
 
@@ -99,6 +100,10 @@ const App: React.FC = () => {
               </h1>
               <HistoryList data={history} onUpdate={refreshData} />
             </div>
+          )}
+
+          {screen === AppScreen.DREAMS && (
+            <DreamDiary />
           )}
 
           {screen === AppScreen.ANALYSIS && (

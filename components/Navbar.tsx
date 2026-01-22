@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, BarChart3, Brain, List, Settings2 } from 'lucide-react';
+import { Clock, BarChart3, Brain, List, Moon, Settings2 } from 'lucide-react';
 import { AppScreen } from '../types';
 
 interface NavbarProps {
@@ -39,6 +39,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentScreen, onNavigate }) => 
         >
           <List size={20} />
           {currentScreen === AppScreen.HISTORY && (
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full"></span>
+          )}
+        </button>
+
+        <button 
+          onClick={() => onNavigate(AppScreen.DREAMS)}
+          className={`relative p-2.5 rounded-full transition-all duration-300 ${currentScreen === AppScreen.DREAMS ? 'text-white bg-white/8 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.10)]' : 'text-zinc-500 hover:text-white'}`}
+        >
+          <Moon size={20} />
+          {currentScreen === AppScreen.DREAMS && (
             <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full"></span>
           )}
         </button>
