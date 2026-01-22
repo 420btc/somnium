@@ -24,13 +24,58 @@ export const GiantClock: React.FC = () => {
     });
   };
 
+  const timeText = formatTime(time);
+  const timeChars = timeText.split('');
+
   return (
     <div className="flex flex-col items-center justify-center py-6 sm:py-10 animate-float">
       <div className="relative flex items-center justify-center px-3 overflow-visible">
         <div className="absolute w-[36vw] h-[36vw] rounded-full bg-white/6 blur-[80px] animate-glow"></div>
         <div className="absolute w-[26vw] h-[26vw] rounded-full bg-white/4 blur-[60px] animate-glow"></div>
-        <div className="relative px-2 text-[clamp(110px,24vw,180px)] sm:text-[18vw] font-display font-bold leading-none tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-600 select-none drop-shadow-[0_0_18px_rgba(255,255,255,0.22)] text-center whitespace-nowrap">
-          {formatTime(time)}
+
+        <div className="relative px-2 -translate-x-[calc(0.08em+2px)] text-[clamp(110px,24vw,180px)] sm:text-[18vw] font-display font-bold leading-none tracking-tight select-none text-center whitespace-nowrap">
+          <div className="relative flex items-baseline justify-center text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-600 drop-shadow-[0_0_18px_rgba(255,255,255,0.22)]">
+            {timeChars.map((ch, idx) => {
+              const isEdge = idx === 0 || idx === timeChars.length - 1;
+              const isColon = ch === ':';
+
+              if (!isEdge) {
+                return (
+                  <span
+                    key={`${ch}-${idx}`}
+                    className={isColon ? 'mx-[0.02em] opacity-70' : undefined}
+                  >
+                    {ch}
+                  </span>
+                );
+              }
+
+              return (
+                <span
+                  key={`${ch}-${idx}`}
+                  className={isColon ? 'mx-[0.02em] opacity-70' : undefined}
+                >
+                  <span className="relative inline-block">
+                    <span
+                      aria-hidden
+                      className="absolute inset-0 translate-x-[3px] translate-y-[3px] text-transparent bg-clip-text bg-gradient-to-b from-neutral-500 to-neutral-900 opacity-80 blur-[0.3px]"
+                    >
+                      {ch}
+                    </span>
+                    <span
+                      aria-hidden
+                      className="absolute inset-0 -translate-x-[1px] -translate-y-[1px] text-white/70 blur-[0.4px]"
+                    >
+                      {ch}
+                    </span>
+                    <span className="relative text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-600 drop-shadow-[0_0_26px_rgba(255,255,255,0.28)]">
+                      {ch}
+                    </span>
+                  </span>
+                </span>
+              );
+            })}
+          </div>
         </div>
       </div>
       <div className="text-zinc-400 text-lg uppercase tracking-[0.2em] font-light mt-4">

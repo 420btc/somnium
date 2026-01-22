@@ -6,6 +6,7 @@ import { HistoryList } from './components/HistoryList';
 import { AnalysisView } from './components/AnalysisView';
 import { Navbar } from './components/Navbar';
 import { DreamDiary } from './components/DreamDiary';
+import { EnergyBeam } from './components/EnergyBeam';
 import { AppScreen, SleepSession } from './types';
 import { getSleepHistory } from './services/storage';
 
@@ -42,27 +43,35 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen overflow-x-hidden pb-20 selection:bg-white selection:text-black ${theme === 'light' ? 'bg-zinc-100 text-black' : 'bg-black text-white'}`}>
+      {screen === AppScreen.CLOCK && (
+        <div className="fixed inset-0 w-screen h-screen pointer-events-none z-0">
+          <div className="absolute inset-0 opacity-90">
+            <EnergyBeam className="w-full h-full" />
+          </div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.62)_60%,rgba(0,0,0,0.86)_100%)]"></div>
+        </div>
+      )}
+
       {/* Background Gradients */}
-      <div className="fixed inset-0 pointer-events-none z-0">
+      <div className="fixed inset-0 pointer-events-none z-[1]">
         <div className={`absolute top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full blur-[100px] opacity-20 ${theme === 'light' ? 'bg-black/10' : 'bg-white/5'}`}></div>
         <div className={`absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] rounded-full blur-[80px] opacity-20 ${theme === 'light' ? 'bg-black/10' : 'bg-zinc-800/20'}`}></div>
       </div>
 
       <div className="relative z-10 max-w-md mx-auto min-h-screen flex flex-col">
-        
-        {/* Header (Dynamic based on screen) */}
-        <header className="p-6 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full animate-pulse ${theme === 'light' ? 'bg-black' : 'bg-white'}`}></div>
-            <span className="font-display font-bold text-xl tracking-tighter">SOMNIUM</span>
-          </div>
-          <div className={`w-8 h-8 rounded-full border flex items-center justify-center ${theme === 'light' ? 'bg-white border-zinc-200' : 'bg-zinc-900 border-zinc-800'}`}>
-            <span className={`text-xs font-bold ${theme === 'light' ? 'text-zinc-500' : 'text-zinc-400'}`}>ES</span>
-          </div>
-        </header>
+          {/* Header (Dynamic based on screen) */}
+          <header className="p-6 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full animate-pulse ${theme === 'light' ? 'bg-black' : 'bg-white'}`}></div>
+              <span className="font-display font-bold text-xl tracking-tighter">SOMNIUM</span>
+            </div>
+            <div className={`w-8 h-8 rounded-full border flex items-center justify-center ${theme === 'light' ? 'bg-white border-zinc-200' : 'bg-zinc-900 border-zinc-800'}`}>
+              <span className={`text-xs font-bold ${theme === 'light' ? 'text-zinc-500' : 'text-zinc-400'}`}>ES</span>
+            </div>
+          </header>
 
-        {/* Content Area */}
-        <main className="flex-1 flex flex-col">
+          {/* Content Area */}
+          <main className="flex-1 flex flex-col">
           {screen === AppScreen.CLOCK && (
             <div className="flex-1 flex flex-col justify-center animate-in fade-in duration-500">
               <GiantClock />
@@ -150,9 +159,9 @@ const App: React.FC = () => {
               </div>
             </div>
           )}
-        </main>
+          </main>
 
-        <Navbar currentScreen={screen} onNavigate={setScreen} />
+          <Navbar currentScreen={screen} onNavigate={setScreen} />
       </div>
     </div>
   );
