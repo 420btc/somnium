@@ -6,7 +6,7 @@ import { HistoryList } from './components/HistoryList';
 import { AnalysisView } from './components/AnalysisView';
 import { Navbar } from './components/Navbar';
 import { DreamDiary } from './components/DreamDiary';
-import { EnergyBeam } from './components/EnergyBeam';
+import { EnergyBeamMemo } from './components/EnergyBeam';
 import { AppScreen, SleepSession } from './types';
 import { getSleepHistory } from './services/storage';
 
@@ -45,16 +45,14 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen overflow-x-hidden pb-20 selection:bg-white selection:text-black ${theme === 'light' ? 'bg-zinc-100 text-black' : 'bg-black text-white'}`}>
-      {screen === AppScreen.CLOCK && (
-        <div className="fixed inset-0 w-screen h-screen pointer-events-none z-0">
-          <div className="absolute inset-0 opacity-90">
-            <EnergyBeam className="w-full h-full hue-rotate-[205deg] saturate-[0.35] brightness-[1.15]" />
-          </div>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.18),rgba(110,168,255,0.12)_45%,rgba(0,0,0,0)_70%)] opacity-60 mix-blend-screen"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.62)_60%,rgba(0,0,0,0.86)_100%)]"></div>
+      <div className={`fixed inset-0 w-screen h-screen pointer-events-none z-0 transition-opacity duration-700 ${screen === AppScreen.CLOCK ? 'opacity-100' : 'opacity-0'}`}>
+        <div className="absolute inset-0 opacity-90">
+          <EnergyBeamMemo className="w-full h-full hue-rotate-[205deg] saturate-[0.35] brightness-[1.15]" />
         </div>
-      )}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.18),rgba(110,168,255,0.12)_45%,rgba(0,0,0,0)_70%)] opacity-60 mix-blend-screen"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.62)_60%,rgba(0,0,0,0.86)_100%)]"></div>
+      </div>
 
       {/* Background Gradients */}
       <div className="fixed inset-0 pointer-events-none z-[1]">

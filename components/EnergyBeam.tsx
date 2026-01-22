@@ -54,19 +54,12 @@ export const EnergyBeam: React.FC<EnergyBeamProps> = ({
 
     return () => {
       window.clearInterval(interval);
-      if (containerRef.current) {
-        containerRef.current.innerHTML = '';
-      }
-      window.SomniumUnicornInitialized = false;
-      const script = document.querySelector<HTMLScriptElement>(
-        'script[data-somnium-unicornstudio="true"]'
-      );
-      if (script?.parentNode) {
-        script.parentNode.removeChild(script);
-      }
+      // We do NOT destroy the script or content here to avoid heavy re-init/GC cycles
+      // The component should be kept mounted but hidden in App.tsx
     };
   }, []);
 
+  // Use React.memo equivalent behavior by not depending on props for init
   return (
     <div className={`relative w-full h-full overflow-hidden ${className}`}>
       <div
@@ -77,3 +70,5 @@ export const EnergyBeam: React.FC<EnergyBeamProps> = ({
     </div>
   );
 };
+
+export const EnergyBeamMemo = React.memo(EnergyBeam);
