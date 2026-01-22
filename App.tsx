@@ -48,6 +48,17 @@ const App: React.FC = () => {
           <div className="absolute inset-0 opacity-90">
             <EnergyBeam className="w-full h-full" />
           </div>
+          <div
+            className="absolute inset-0"
+            style={{
+              backdropFilter: 'blur(2px)',
+              WebkitBackdropFilter: 'blur(2px)',
+              maskImage:
+                'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 45%)',
+              WebkitMaskImage:
+                'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 45%)'
+            }}
+          ></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.62)_60%,rgba(0,0,0,0.86)_100%)]"></div>
         </div>
       )}
@@ -78,14 +89,14 @@ const App: React.FC = () => {
               <SleepControls onSessionUpdate={refreshData} />
               
               {/* Mini Stats Preview */}
-              <div className="px-6 mt-8 opacity-60">
-                 <div className="flex justify-between text-xs uppercase tracking-widest text-zinc-500 mb-2">
+              <div className="px-6 mt-8">
+                 <div className="flex justify-between text-xs uppercase tracking-widest text-white/60 font-light mb-2 drop-shadow-[0_1px_10px_rgba(0,0,0,0.7)]">
                     <span>Hoy</span>
                     <span>{history.length > 0 ? (history[0].durationMinutes / 60).toFixed(1) + 'h' : '--'}</span>
                  </div>
-                 <div className="h-1 w-full bg-zinc-900 rounded-full overflow-hidden">
+                 <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-white transition-all duration-1000" 
+                      className="h-full bg-white/80 transition-all duration-1000" 
                       style={{ width: history.length > 0 ? `${Math.min((history[0].durationMinutes / 480) * 100, 100)}%` : '0%' }}
                     ></div>
                  </div>

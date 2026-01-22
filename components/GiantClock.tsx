@@ -78,7 +78,7 @@ export const GiantClock: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="text-zinc-400 text-lg uppercase tracking-[0.2em] font-light mt-4">
+      <div className="text-white/70 text-lg uppercase tracking-[0.2em] font-light mt-4 drop-shadow-[0_1px_10px_rgba(0,0,0,0.7)]">
         {formatDate(time)}
       </div>
     </div>
