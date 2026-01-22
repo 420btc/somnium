@@ -70,16 +70,7 @@ const App: React.FC = () => {
       </div>
 
       <div className="relative z-10 max-w-md mx-auto min-h-screen flex flex-col">
-          {/* Header (Dynamic based on screen) */}
-          <header className="p-6 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full animate-pulse ${theme === 'light' ? 'bg-black' : 'bg-white'}`}></div>
-              <span className="font-display font-bold text-xl tracking-tighter">SOMNIUM</span>
-            </div>
-            <div className={`w-8 h-8 rounded-full border flex items-center justify-center ${theme === 'light' ? 'bg-white border-zinc-200' : 'bg-zinc-900 border-zinc-800'}`}>
-              <span className={`text-xs font-bold ${theme === 'light' ? 'text-zinc-500' : 'text-zinc-400'}`}>ES</span>
-            </div>
-          </header>
+          
 
           {/* Content Area */}
           <main className="flex-1 flex flex-col">
