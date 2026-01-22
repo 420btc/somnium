@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Moon, Trash2, Pencil, Save, X } from 'lucide-react';
-import { DreamEntry, DreamEmotion, DreamLucidityLevel } from '../types';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Plus, Moon, Trash2, Pencil, X, Search, Filter } from 'lucide-react';
+import { DreamEntry, DreamEmotion, DreamLucidityLevel, DailyJournalEntry } from '../types';
 import {
   getDreamEntries,
   saveDreamEntry,
   updateDreamEntry,
-  deleteDreamEntry
+  deleteDreamEntry,
+  getDailyJournalEntries,
+  saveDailyJournalEntry,
+  updateDailyJournalEntry
 } from '../services/storage';
 
 const defaultEmotions: DreamEmotion[] = ['miedo', 'ansiedad', 'alegria', 'tristeza', 'sorpresa', 'neutral'];
@@ -26,9 +29,26 @@ export const DreamDiary: React.FC = () => {
   const [draftNightmare, setDraftNightmare] = useState(false);
   const [draftEmotions, setDraftEmotions] = useState<DreamEmotion[]>([]);
   const [draftLucidity, setDraftLucidity] = useState<DreamLucidityLevel>('none');
+  const [journalToday, setJournalToday] = useState<DailyJournalEntry | null>(null);
+  const [journalMood, setJournalMood] = useState<DailyJournalEntry['mood']>('neutro');
+  const [journalStress, setJournalStress] = useState(3);
+  const [journalNotes, setJournalNotes] = useState('');
+  const [query, setQuery] = useState('');
+  const [filterEmotion, setFilterEmotion] = useState<DreamEmotion | 'all'>('all');
+  const [filterNightmaresOnly, setFilterNightmaresOnly] = useState(false);
+  const [filterRange, setFilterRange] = useState<'7' | '30' | 'all'>('all');
 
   useEffect(() => {
     setEntries(getDreamEntries());
+    const today = new Date().toISOString().slice(0, 10);
+    const all = getDailyJournalEntries();
+    const existing = all.find(entry => entry.date === today) || null;
+    setJournalToday(existing);
+    if (existing) {
+      setJournalMood(existing.mood ?? 'neutro');
+      setJournalStress(existing.stressLevel ?? 3);
+      setJournalNotes(existing.notes ?? '');
+    }
   }, []);
 
   const resetDraft = () => {
@@ -110,6 +130,56 @@ export const DreamDiary: React.FC = () => {
       month: 'short'
     });
   };
+
+  const persistJournalToday = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const base: DailyJournalEntry = {
+      id: journalToday?.id ?? crypto.randomUUID(),
+      date: today,
+      mood: journalMood,
+      stressLevel: journalStress,
+      notes: journalNotes.trim()
+    };
+    const updatedList = journalToday
+      ? updateDailyJournalEntry(base)
+      : saveDailyJournalEntry(base);
+    const updated = updatedList.find(entry => entry.date === today) ?? base;
+    setJournalToday(updated);
+  };
+
+  const filteredEntries = useMemo(() => {
+    const now = new Date();
+    return entries.filter(entry => {
+      if (filterRange === '7') {
+        const diff =
+          (now.getTime() - new Date(entry.date).getTime()) / (1000 * 60 * 60 * 24);
+        if (diff > 7) return false;
+      } else if (filterRange === '30') {
+        const diff =
+          (now.getTime() - new Date(entry.date).getTime()) / (1000 * 60 * 60 * 24);
+        if (diff > 30) return false;
+      }
+
+      if (filterNightmaresOnly && !entry.nightmare) {
+        return false;
+      }
+
+      if (filterEmotion !== 'all' && !entry.emotions.includes(filterEmotion)) {
+        return false;
+      }
+
+      if (query.trim()) {
+        const q = query.toLowerCase();
+        const title = (entry.title ?? '').toLowerCase();
+        const text = entry.rawText.toLowerCase();
+        if (!title.includes(q) && !text.includes(q)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [entries, filterRange, filterNightmaresOnly, filterEmotion, query]);
 
   return (
     <div className="px-4 pb-24 animate-in fade-in duration-500">
@@ -221,16 +291,188 @@ export const DreamDiary: React.FC = () => {
         </div>
       )}
 
-      <div className="space-y-3">
-        {entries.length === 0 ? (
-          <div className="text-center py-10 text-zinc-600">
-            <p>No hay sueños guardados aún.</p>
-            <p className="text-xs mt-1">
-              Registra el primero nada más despertar para entrenar tu memoria onírica.
+      <div className="mb-6 p-4 bg-zinc-900/70 border border-white/10 rounded-2xl">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-zinc-500">
+              Hoy
+            </p>
+            <p className="text-sm font-medium text-white">
+              Diario rápido del día
             </p>
           </div>
+          {journalToday && (
+            <span className="text-[10px] uppercase tracking-[0.22em] text-emerald-300">
+              Guardado
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">
+            Estado
+          </span>
+          <select
+            value={journalMood ?? 'neutro'}
+            onChange={(e) =>
+              setJournalMood(e.target.value as DailyJournalEntry['mood'])
+            }
+            className="bg-zinc-950 border border-white/10 rounded-full px-3 py-1 text-xs text-white focus:outline-none"
+          >
+            <option value="muy_bajo">Muy bajo</option>
+            <option value="bajo">Bajo</option>
+            <option value="neutro">Neutro</option>
+            <option value="alto">Alto</option>
+            <option value="muy_alto">Muy alto</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">
+            Estrés
+          </span>
+          <input
+            type="range"
+            min={1}
+            max={5}
+            value={journalStress}
+            onChange={(e) => setJournalStress(Number(e.target.value))}
+            className="flex-1 accent-white"
+          />
+          <span className="text-xs text-zinc-400">{journalStress}/5</span>
+        </div>
+        <textarea
+          value={journalNotes}
+          onChange={(e) => setJournalNotes(e.target.value)}
+          placeholder="Apunta algo rápido del día que pueda afectar a tus sueños (discusiones, victorias, cafeína, pantallas tarde...)."
+          className="w-full bg-zinc-950 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none resize-none mb-3"
+          rows={2}
+        />
+        <div className="flex items-center justify-end">
+          <button
+            type="button"
+            onClick={persistJournalToday}
+            className="px-3 py-1.5 rounded-full text-[10px] uppercase tracking-[0.22em] bg-white text-black"
+          >
+            Guardar día
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-4 space-y-3">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="flex-1 flex items-center gap-2 bg-zinc-950 border border-white/10 rounded-full px-3 py-1.5">
+            <Search size={14} className="text-zinc-500" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar por título o contenido"
+              className="bg-transparent text-xs text-white placeholder:text-zinc-600 focus:outline-none flex-1"
+            />
+          </div>
+          <button
+            type="button"
+            className="w-8 h-8 rounded-full bg-zinc-950 border border-white/10 flex items-center justify-center text-zinc-400"
+          >
+            <Filter size={14} />
+          </button>
+        </div>
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setFilterRange('7')}
+              className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-[0.22em] border ${
+                filterRange === '7'
+                  ? 'bg-white text-black border-white'
+                  : 'bg-zinc-950 text-zinc-400 border-white/10'
+              }`}
+            >
+              7 días
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterRange('30')}
+              className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-[0.22em] border ${
+                filterRange === '30'
+                  ? 'bg-white text-black border-white'
+                  : 'bg-zinc-950 text-zinc-400 border-white/10'
+              }`}
+            >
+              30 días
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterRange('all')}
+              className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-[0.22em] border ${
+                filterRange === 'all'
+                  ? 'bg-white text-black border-white'
+                  : 'bg-zinc-950 text-zinc-400 border-white/10'
+              }`}
+            >
+              Todo
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFilterNightmaresOnly(prev => !prev)}
+            className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-[0.22em] border ${
+              filterNightmaresOnly
+                ? 'bg-red-500/10 text-red-300 border-red-400/60'
+                : 'bg-zinc-950 text-zinc-400 border-white/10'
+            }`}
+          >
+            Solo pesadillas
+          </button>
+        </div>
+        <div className="flex items-center gap-1 mb-2 overflow-x-auto no-scrollbar py-1">
+          <button
+            type="button"
+            onClick={() => setFilterEmotion('all')}
+            className={`px-3 py-0.5 rounded-full text-[10px] uppercase tracking-[0.22em] border whitespace-nowrap ${
+              filterEmotion === 'all'
+                ? 'bg-white text-black border-white'
+                : 'bg-zinc-950 text-zinc-400 border-white/10'
+            }`}
+          >
+            Todas
+          </button>
+          {defaultEmotions.map(emotion => (
+            <button
+              key={emotion}
+              type="button"
+              onClick={() => setFilterEmotion(emotion)}
+              className={`px-3 py-0.5 rounded-full text-[10px] uppercase tracking-[0.22em] border whitespace-nowrap ${
+                filterEmotion === emotion
+                  ? 'bg-white text-black border-white'
+                  : 'bg-zinc-950 text-zinc-400 border-white/10'
+              }`}
+            >
+              {emotion}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {filteredEntries.length === 0 ? (
+          <div className="text-center py-10 text-zinc-600">
+            {entries.length === 0 ? (
+              <>
+                <p>No hay sueños guardados aún.</p>
+                <p className="text-xs mt-1">
+                  Registra el primero nada más despertar para entrenar tu memoria onírica.
+                </p>
+              </>
+            ) : (
+              <>
+                <p>No hay resultados para los filtros actuales.</p>
+                <p className="text-xs mt-1">
+                  Prueba a ajustar la búsqueda o el rango de días.
+                </p>
+              </>
+            )}
+          </div>
         ) : (
-          entries.map(entry => (
+          filteredEntries.map(entry => (
             <div
               key={entry.id}
               className="group relative p-4 bg-zinc-900/60 border border-white/5 rounded-2xl hover:bg-zinc-800/60 transition-colors"
@@ -298,4 +540,3 @@ export const DreamDiary: React.FC = () => {
     </div>
   );
 }
-

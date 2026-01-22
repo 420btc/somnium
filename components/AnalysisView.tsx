@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Sparkles, Brain, Zap } from 'lucide-react';
 import { SleepSession, AnalysisResult } from '../types';
-import { analyzeSleep } from '../services/geminiService';
+import { analyzeSleep, analyzeDreamsAndHabits } from '../services/geminiService';
+import { getDreamEntries, getDailyJournalEntries } from '../services/storage';
 
 interface AnalysisViewProps {
   data: SleepSession[];
@@ -10,11 +11,19 @@ interface AnalysisViewProps {
 export const AnalysisView: React.FC<AnalysisViewProps> = ({ data }) => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<'sleepOnly' | 'dreamsAndHabits'>('dreamsAndHabits');
 
   const handleAnalyze = async () => {
     setLoading(true);
     try {
-      const result = await analyzeSleep(data);
+      let result: AnalysisResult;
+      if (mode === 'sleepOnly') {
+        result = await analyzeSleep(data);
+      } else {
+        const dreams = getDreamEntries();
+        const journal = getDailyJournalEntries();
+        result = await analyzeDreamsAndHabits(data, dreams, journal);
+      }
       setAnalysis(result);
     } catch (e) {
       console.error(e);
@@ -39,7 +48,9 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data }) => {
         <h1 className="text-3xl font-display font-bold bg-gradient-to-r from-white via-zinc-200 to-zinc-600 bg-clip-text text-transparent">
           Estudio de Sueño
         </h1>
-        <p className="text-zinc-500 text-sm mt-1">Análisis profundo impulsado por Gemini AI</p>
+        <p className="text-zinc-500 text-sm mt-1">
+          Análisis profundo de sueño, sueños y hábitos impulsado por Gemini AI
+        </p>
       </div>
 
       {!analysis && !loading && (
@@ -48,8 +59,32 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data }) => {
           <Sparkles className="w-12 h-12 text-white mx-auto mb-6" />
           <h3 className="text-xl font-bold text-white mb-2">Generar Informe IA</h3>
           <p className="text-zinc-400 text-sm mb-6">
-            Nuestros algoritmos analizarán tus patrones para detectar anomalías y oportunidades de mejora.
+            Nuestros algoritmos analizarán tus patrones nocturnos y sueños para detectar anomalías y oportunidades de mejora.
           </p>
+          <div className="flex items-center justify-center gap-2 mb-4 text-[10px] uppercase tracking-[0.22em]">
+            <button
+              type="button"
+              onClick={() => setMode('dreamsAndHabits')}
+              className={`px-3 py-1 rounded-full border ${
+                mode === 'dreamsAndHabits'
+                  ? 'bg-white text-black border-white'
+                  : 'bg-black/40 text-zinc-400 border-white/10'
+              }`}
+            >
+              Sueño + sueños + hábitos
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('sleepOnly')}
+              className={`px-3 py-1 rounded-full border ${
+                mode === 'sleepOnly'
+                  ? 'bg-white text-black border-white'
+                  : 'bg-black/40 text-zinc-400 border-white/10'
+              }`}
+            >
+              Solo sueño
+            </button>
+          </div>
           <button 
             onClick={handleAnalyze}
             className="w-full py-4 bg-white text-black font-bold rounded-xl hover:bg-zinc-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.2)] flex items-center justify-center gap-2"
